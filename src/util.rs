@@ -1,6 +1,6 @@
 use std::f64::consts::TAU;
 
-use ab_glyph::{point, Font, GlyphId, OutlinedGlyph, PxScale, Rect, ScaleFont};
+use ab_glyph::{Font, GlyphId, OutlinedGlyph, PxScale, Rect, ScaleFont, point};
 use image::Pixel;
 use imageproc::{definitions::Clamp, drawing::Canvas, pixelops::weighted_sum};
 
@@ -38,9 +38,17 @@ pub fn draw_text_mut<C>(
     });
 }
 
-
-pub fn draw_text_outline_mut<C>(canvas: &mut C, color: C::Pixel, outline_color: C::Pixel, thickness: f64, x: i32, y: i32, scale: impl Into<PxScale> + Copy, font: &impl Font, text: &str)
-where
+pub fn draw_text_outline_mut<C>(
+    canvas: &mut C,
+    color: C::Pixel,
+    outline_color: C::Pixel,
+    thickness: f64,
+    x: i32,
+    y: i32,
+    scale: impl Into<PxScale> + Copy,
+    font: &impl Font,
+    text: &str,
+) where
     C: Canvas,
     <C::Pixel as Pixel>::Subpixel: Into<f32> + Clamp<f32>,
 {
@@ -62,15 +70,7 @@ where
         );
     }
 
-    draw_text_mut(
-        canvas,
-        color,
-        x,
-        y,
-        scale,
-        font,
-        text,
-    );
+    draw_text_mut(canvas, color, x, y, scale, font, text);
 }
 
 fn layout_glyphs(

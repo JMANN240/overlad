@@ -3,7 +3,7 @@ use std::{fmt::Debug, io::Cursor, path::PathBuf};
 use ab_glyph::FontRef;
 use axum::{
     extract::{DefaultBodyLimit, Query},
-    http::{header::CONTENT_TYPE, HeaderMap},
+    http::{HeaderMap, header::CONTENT_TYPE},
     response::IntoResponse,
     routing::{get, post},
     serve::Listener,
@@ -109,7 +109,10 @@ pub struct OverlayQuery {
     thickness: f64,
 }
 
-pub async fn overlay(Query(query): Query<OverlayQuery>, multipart: TypedMultipart<OverlayMultipart>) -> impl IntoResponse {
+pub async fn overlay(
+    Query(query): Query<OverlayQuery>,
+    multipart: TypedMultipart<OverlayMultipart>,
+) -> impl IntoResponse {
     let dynamic_image = image::load_from_memory(&multipart.image).unwrap();
     let mut image = dynamic_image.into_rgb8();
 
@@ -138,7 +141,8 @@ pub async fn overlay(Query(query): Query<OverlayQuery>, multipart: TypedMultipar
             let previous_line = previous_line_words.join(" ");
             let previous_measurement = text_size(font_scale, &font, &previous_line);
 
-            if (current_measurement.0 as f64) > max_width && (previous_measurement.0 as f64) < max_width
+            if (current_measurement.0 as f64) > max_width
+                && (previous_measurement.0 as f64) < max_width
             {
                 draw_text_outline_mut(
                     &mut image,
@@ -151,7 +155,7 @@ pub async fn overlay(Query(query): Query<OverlayQuery>, multipart: TypedMultipar
                     &font,
                     &previous_line,
                 );
-                
+
                 line_words.update(vec![line_words.current().last().unwrap()]);
                 y_offset += font_scale as i32;
             }
@@ -179,4 +183,3 @@ pub async fn overlay(Query(query): Query<OverlayQuery>, multipart: TypedMultipar
 
     (headers, buf.into_inner())
 }
-
