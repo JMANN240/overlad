@@ -11,13 +11,19 @@ impl Image {
         id: &str,
         user_id: i64,
     ) -> sqlx::Result<SqliteQueryResult> {
-        query!("INSERT INTO images VALUES (?, ?)", id, user_id,)
+        query!("INSERT INTO images VALUES (?, ?)", id, user_id)
             .execute(pool)
             .await
     }
 
+    pub async fn get_all(pool: &SqlitePool) -> sqlx::Result<Vec<Image>> {
+        query_as!(Image, "SELECT * FROM images")
+            .fetch_all(pool)
+            .await
+    }
+
     pub async fn get_by_id(pool: &SqlitePool, id: &str) -> sqlx::Result<Image> {
-        query_as!(Image, "SELECT * FROM images WHERE id = ?", id,)
+        query_as!(Image, "SELECT * FROM images WHERE id = ?", id)
             .fetch_one(pool)
             .await
     }

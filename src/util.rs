@@ -52,22 +52,24 @@ pub fn draw_text_outline_mut<C>(
     C: Canvas,
     <C::Pixel as Pixel>::Subpixel: Into<f32> + Clamp<f32>,
 {
-    let steps = 32;
-
-    for i in 0..steps {
-        let theta = TAU * i as f64 / steps as f64;
-        let x_offset = theta.cos() * thickness;
-        let y_offset = theta.sin() * thickness;
-
-        draw_text_mut(
-            canvas,
-            outline_color,
-            x + x_offset.round() as i32,
-            y + y_offset.round() as i32,
-            scale,
-            font,
-            text,
-        );
+    if thickness > 0.0 {
+        let steps = 32;
+    
+        for i in 0..steps {
+            let theta = TAU * i as f64 / steps as f64;
+            let x_offset = theta.cos() * thickness;
+            let y_offset = theta.sin() * thickness;
+    
+            draw_text_mut(
+                canvas,
+                outline_color,
+                x + x_offset.round() as i32,
+                y + y_offset.round() as i32,
+                scale,
+                font,
+                text,
+            );
+        }
     }
 
     draw_text_mut(canvas, color, x, y, scale, font, text);

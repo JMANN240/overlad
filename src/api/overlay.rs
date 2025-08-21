@@ -17,12 +17,14 @@ use crate::util::draw_text_outline_mut;
 pub struct OverlayQuery {
     id: String,
     text: String,
-
-    #[serde(default)]
-    thickness: f64,
+    scale: Option<f64>,
+    thickness: Option<f64>,
 }
 
 pub async fn overlay(Query(query): Query<OverlayQuery>) -> impl IntoResponse {
+    let scale = query.scale.unwrap_or(1.0);
+    let thickness = query.thickness.unwrap_or(0.0);
+
     let dynamic_image = ImageReader::open(format!("images/{}.png", query.id))
         .unwrap()
         .decode()
@@ -34,11 +36,11 @@ pub async fn overlay(Query(query): Query<OverlayQuery>) -> impl IntoResponse {
 
     let words = query.text.split(" ").collect::<Vec<&str>>();
     let font = FontRef::try_from_slice(include_bytes!("../../roboto.ttf")).unwrap();
-    let font_scale = image_min as f32 * 0.2;
+    let font_scale = scale as f32 * image_min as f32 * 0.1;
 
     let max_width = image.width() as f64 * 0.75 - 2.0 * margin;
 
-    let thickness = query.thickness * image_min as f64 * 0.001;
+    let thickness = thickness * image_min as f64 * 0.001;
     let mut line_words = CurrentPrevious::new(Vec::new());
     let mut y_offset = 0;
     for word in words {
@@ -52,10 +54,8 @@ pub async fn overlay(Query(query): Query<OverlayQuery>) -> impl IntoResponse {
 
         if let Some(previous_line_words) = line_words.previous() {
             let previous_line = previous_line_words.join(" ");
-            let previous_measurement = text_size(font_scale, &font, &previous_line);
 
             if (current_measurement.0 as f64) > max_width
-                && (previous_measurement.0 as f64) < max_width
             {
                 draw_text_outline_mut(
                     &mut image,
