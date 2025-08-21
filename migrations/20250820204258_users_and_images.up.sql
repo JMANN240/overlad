@@ -1,0 +1,12 @@
+CREATE TABLE users (
+	id INTEGER PRIMARY KEY NOT NULL,
+	username TEXT UNIQUE NOT NULL,
+	passhash TEXT NOT NULL,
+	salt TEXT NOT NULL
+);
+
+CREATE TABLE images (
+	id TEXT PRIMARY KEY NOT NULL,
+	user_id INTEGER NOT NULL,
+	FOREIGN KEY (user_id) REFERENCES users (id)
+)
