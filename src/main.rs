@@ -1,4 +1,4 @@
-use std::{fmt::Debug, path::PathBuf};
+use std::{fmt::Debug, fs::Permissions, os::unix::fs::PermissionsExt, path::PathBuf};
 
 use axum::{
     extract::DefaultBodyLimit, http::header::{AUTHORIZATION, CONTENT_TYPE}, routing::{get, post}, serve::Listener
@@ -55,6 +55,8 @@ async fn main() {
             .unwrap();
 
         let listener = UnixListener::bind(path.clone()).unwrap();
+
+        tokio::fs::set_permissions(path, Permissions::from_mode(0o775)).await.unwrap();
 
         serve_with_listener(listener).await;
     }
