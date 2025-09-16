@@ -1,19 +1,8 @@
 use axum::{extract::State, http::StatusCode, Json};
 use jwt::SignWithKey;
-use serde::{Deserialize, Serialize};
+use overlad_api::{TokenClaims, TokenRequest};
 
 use crate::{AppState, db::user::User};
-
-#[derive(Serialize, Deserialize)]
-pub struct TokenClaims {
-    pub sub: String,
-}
-
-#[derive(Deserialize)]
-pub struct TokenRequest {
-    username: String,
-    password: String,
-}
 
 pub async fn token(
     State(state): State<AppState>,
@@ -25,7 +14,7 @@ pub async fn token(
 
     if let Some(user) = maybe_user {
         if user.verify_password(&token_request.password) {
-            let token_claims = TokenClaims { sub: user.username };
+            let token_claims = TokenClaims { sub: user.id };
 
             let token = token_claims.sign_with_key(&state.key).unwrap();
 

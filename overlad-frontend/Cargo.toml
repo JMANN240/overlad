@@ -1,0 +1,16 @@
+[package]
+name = "overlad-frontend"
+version = "0.1.0"
+edition = "2024"
+
+[dependencies]
+gloo = "0.11.0"
+overlad-api = { path = "../overlad-api" }
+serde = { workspace = true }
+serde_json = { workspace = true }
+serde_plain = "1.0.2"
+wasm-bindgen-futures = "0.4.51"
+web-sys = "0.3.78"
+yew = { version = "0.21.0", features = ["csr"] }
+yew-nav = { git = "https://github.com/JMANN240/yew-nav" }
+yew-router = "0.18.0"

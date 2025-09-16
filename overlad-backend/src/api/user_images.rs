@@ -4,12 +4,12 @@ use axum_extra::{
     headers::{Authorization, authorization::Bearer},
 };
 use jwt::VerifyWithKey;
+use overlad_api::TokenClaims;
 use serde::Serialize;
 
 use crate::{
     AppState,
-    api::token::TokenClaims,
-    db::{image::Image, user::User},
+    db::image::Image,
 };
 
 #[derive(Serialize)]
@@ -25,12 +25,7 @@ pub async fn user_images(
         authorization.token().verify_with_key(&state.key);
 
     if let Ok(token_claims) = maybe_token_claims {
-        let user = User::get_by_username(&state.pool, &token_claims.sub)
-            .await
-            .unwrap()
-            .unwrap();
-
-        let images = Image::get_by_user_id(&state.pool, user.id).await.unwrap();
+        let images = Image::get_by_user_id(&state.pool, token_claims.sub).await.unwrap();
 
         Ok(Json(UserImagesResponse {
             ids: images.into_iter().map(|image| image.id).collect(),

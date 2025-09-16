@@ -35,7 +35,7 @@ pub async fn overlay(Query(query): Query<OverlayQuery>) -> impl IntoResponse {
     let margin = image_min as f64 * 0.05;
 
     let words = query.text.split(" ").collect::<Vec<&str>>();
-    let font = FontRef::try_from_slice(include_bytes!("../../roboto.ttf")).unwrap();
+    let font = FontRef::try_from_slice(include_bytes!("../../../roboto.ttf")).unwrap();
     let font_scale = scale as f32 * image_min as f32 * 0.1;
 
     let max_width = image.width() as f64 * 0.75 - 2.0 * margin;

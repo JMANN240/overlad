@@ -1,15 +1,9 @@
 use axum::{Json, extract::State, http::StatusCode};
-use axum_extra::{
-    TypedHeader,
-    headers::{Authorization, authorization::Bearer},
-};
-use jwt::VerifyWithKey;
 use serde::Serialize;
 
 use crate::{
     AppState,
-    api::token::TokenClaims,
-    db::{image::Image, user::User},
+    db::image::Image,
 };
 
 #[derive(Serialize)]

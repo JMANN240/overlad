@@ -6,12 +6,12 @@ use axum_extra::{
 use axum_typed_multipart::{TryFromMultipart, TypedMultipart};
 use base64::prelude::*;
 use jwt::VerifyWithKey;
+use overlad_api::TokenClaims;
 use serde::Serialize;
 
 use crate::{
     AppState,
-    api::token::TokenClaims,
-    db::{image::Image, user::User},
+    db::image::Image,
 };
 
 #[derive(TryFromMultipart)]
@@ -33,11 +33,6 @@ pub async fn upload(
         authorization.token().verify_with_key(&state.key);
 
     if let Ok(token_claims) = maybe_token_claims {
-        let user = User::get_by_username(&state.pool, &token_claims.sub)
-            .await
-            .unwrap()
-            .unwrap();
-
         let image = image::load_from_memory(&multipart.image).unwrap();
 
         let mut id_bytes = [0u8; 32];
@@ -47,7 +42,7 @@ pub async fn upload(
 
         image.save(format!("images/{id}.png")).unwrap();
 
-        Image::insert(&state.pool, &id, user.id).await.unwrap();
+        Image::insert(&state.pool, &id, token_claims.sub).await.unwrap();
 
         Ok(Json(UploadResponse { id }))
     } else {
