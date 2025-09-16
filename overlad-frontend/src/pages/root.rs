@@ -40,7 +40,9 @@ pub fn RootPage() -> Html {
         })
     };
 
-    let link = format!("/api/overlay?id=uMUAN814ByzLYsqzaAW5CWdzXPX5KH2qT7exijV_Fug&text={}&thickness=1&scale=2", &*text_state);
+    let example_image_id = std::env!("EXAMPLE_IMAGE_ID");
+
+    let link = format!("/api/overlay?id={}&text={}&thickness=1&scale=2", example_image_id, &*text_state);
 
     html! {
         <RootLayout>
@@ -62,7 +64,7 @@ pub fn RootPage() -> Html {
                         <h2 class="text-2xl">{ "Upload or Select and Image" }</h2>
                     </div>
                     <div class="flex justify-center items-center">
-                        <img class="max-h-64 border" src="/api/overlay?id=uMUAN814ByzLYsqzaAW5CWdzXPX5KH2qT7exijV_Fug&text=&thickness=0&scale=1" />
+                        <img class="max-h-64 border" src={format!("/api/overlay?id={}&text=&thickness=0&scale=1", example_image_id)} />
                     </div>
                 </section>
                 <hr />
