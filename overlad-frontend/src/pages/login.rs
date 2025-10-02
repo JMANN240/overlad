@@ -8,7 +8,6 @@ use yew_router::hooks::use_navigator;
 use crate::{
     Route,
     components::{button::{Button, ButtonType}, token_provider::{TokenAction, TokenContext}},
-    pages::root::RootLayout,
 };
 
 #[function_component]
@@ -99,19 +98,15 @@ pub fn LoginPage() -> Html {
     };
 
     html! {
-        <RootLayout>
-            <main class="flex flex-col items-center p-8">
-                <div class="border p-4 w-64">
-                    <form class="flex flex-col gap-2" onsubmit={handle_submit}>
-                        if let Some(error_text) = &(*error_text) {
-                            <p class="text-red-500">{error_text}</p>
-                        }
-                        <input ref={username_input_node_ref} class="outline-offset-1 focus:outline-1 border p-1" value={(*username).clone()} onchange={handle_username_change} type="text" name="username" placeholder="Username" required=true />
-                        <input ref={password_input_node_ref} class="outline-offset-1 focus:outline-1 border p-1" value={(*password).clone()} onchange={handle_password_change} type="password" name="password" placeholder="Password" required=true />
-                        <Button r#type={ButtonType::Submit}>{ "Login" }</Button>
-                    </form>
-                </div>
-            </main>
-        </RootLayout>
+        <main class="flex flex-col items-center p-8">
+            <form class="flex flex-col gap-2" onsubmit={handle_submit}>
+                if let Some(error_text) = &(*error_text) {
+                    <p class="text-red-500">{error_text}</p>
+                }
+                <input ref={username_input_node_ref} class="bg-transparent text-gray-900 outline-blue-500 autofill:bg-blue-200 autofill:filter-none outline-offset-1 focus:outline-1 border p-1 rounded-sm" value={(*username).clone()} onchange={handle_username_change} type="text" name="username" placeholder="Username" required=true />
+                <input ref={password_input_node_ref} class="bg-transparent text-gray-900 outline-blue-500 autofill:bg-blue-200 autofill:filter-none outline-offset-1 focus:outline-1 border p-1 rounded-sm" value={(*password).clone()} onchange={handle_password_change} type="password" name="password" placeholder="Password" required=true />
+                <button type="submit" class="outline-offset-1 focus:outline-1 bg-blue-500 border border-blue-500 text-gray-100 p-1 rounded-sm">{ "Login" }</button>
+            </form>
+        </main>
     }
 }

@@ -7,7 +7,6 @@ use yew_router::hooks::use_navigator;
 use crate::{
     Route,
     components::{button::{Button, ButtonType}, token_provider::{TokenAction, TokenContext}},
-    pages::root::RootLayout,
 };
 
 #[function_component]
@@ -138,20 +137,18 @@ pub fn RegisterPage() -> Html {
     };
 
     html! {
-        <RootLayout>
-            <main class="flex flex-col items-center p-8">
-                <div class="border p-4">
-                    <form class="flex flex-col gap-2" onsubmit={handle_submit}>
-                        if let Some(error_text) = &(*error_text) {
-                            <p class="text-red-500">{error_text}</p>
-                        }
-                        <input ref={username_input_node_ref} class="outline-offset-1 focus:outline-1 border p-1" value={(*username).clone()} onchange={handle_username_change} type="text" name="username" placeholder="Username" required=true />
-                        <input ref={password_input_node_ref} class="outline-offset-1 focus:outline-1 border p-1" value={(*password).clone()} onchange={handle_password_change} type="password" name="password" placeholder="Password" required=true />
-                        <input ref={confirm_password_input_node_ref} class="outline-offset-1 focus:outline-1 border p-1" value={(*confirm_password).clone()} onchange={handle_confirm_password_change} type="password" name="confirm-password" placeholder="Confirm Password" required=true />
-                        <Button r#type={ButtonType::Submit}>{ "Register" }</Button>
-                    </form>
-                </div>
-            </main>
-        </RootLayout>
+        <main class="flex flex-col items-center p-8">
+            <div class="border p-4">
+                <form class="flex flex-col gap-2" onsubmit={handle_submit}>
+                    if let Some(error_text) = &(*error_text) {
+                        <p class="text-red-500">{error_text}</p>
+                    }
+                    <input ref={username_input_node_ref} class="outline-offset-1 focus:outline-1 border p-1" value={(*username).clone()} onchange={handle_username_change} type="text" name="username" placeholder="Username" required=true />
+                    <input ref={password_input_node_ref} class="outline-offset-1 focus:outline-1 border p-1" value={(*password).clone()} onchange={handle_password_change} type="password" name="password" placeholder="Password" required=true />
+                    <input ref={confirm_password_input_node_ref} class="outline-offset-1 focus:outline-1 border p-1" value={(*confirm_password).clone()} onchange={handle_confirm_password_change} type="password" name="confirm-password" placeholder="Confirm Password" required=true />
+                    <Button r#type={ButtonType::Submit}>{ "Register" }</Button>
+                </form>
+            </div>
+        </main>
     }
 }

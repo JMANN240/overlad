@@ -1,7 +1,8 @@
 use yew::prelude::*;
-use yew_nav::NavStateProvider;
+use yew_nav::NavMenuStateProvider;
 use yew_router::prelude::*;
 
+use crate::components::nav::NavBar;
 use crate::components::token_provider::TokenProvider;
 use crate::pages::image::ImagePage;
 use crate::pages::login::LoginPage;
@@ -18,6 +19,8 @@ pub mod pages;
 pub enum Route {
     #[at("/")]
     Root,
+    #[at("/images")]
+    Images,
     #[at("/images/:id")]
     Image { id: i64 },
     #[at("/register")]
@@ -33,6 +36,9 @@ pub enum Route {
 fn switch(routes: Route) -> Html {
     match routes {
         Route::Root => {
+            html! { <RootPage /> }
+        }
+        Route::Images => {
             html! { <RootPage /> }
         }
         Route::Image { id } => {
@@ -57,11 +63,14 @@ fn switch(routes: Route) -> Html {
 pub fn App() -> Html {
     html! {
         <TokenProvider>
-            <NavStateProvider>
+            <NavMenuStateProvider>
                 <BrowserRouter>
+                    <header class="sticky top-0 bg-inherit z-10 border-b">
+                        <NavBar />
+                    </header>
                     <Switch<Route> render={switch} />
                 </BrowserRouter>
-            </NavStateProvider>
+            </NavMenuStateProvider>
         </TokenProvider>
     }
 }
