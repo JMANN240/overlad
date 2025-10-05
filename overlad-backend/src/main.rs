@@ -9,10 +9,10 @@ use hmac::{Hmac, Mac};
 use sha2::Sha256;
 use sqlx::SqlitePool;
 use tokio::net::{TcpListener, UnixListener};
-use tower_http::{cors::CorsLayer, services::ServeDir};
+use tower_http::cors::CorsLayer;
 
 use crate::api::{
-    all_images::all_images, overlay::overlay, register::register, token::token, upload::upload, user_images::user_images
+    all_images::all_images, image::get_image, overlay::get_overlay, register::register, token::token, upload::upload, user_images::user_images
 };
 
 mod api;
@@ -87,10 +87,10 @@ where
         .route("/register", post(register))
         .route("/token", post(token))
         .route("/upload", post(upload))
-        .route("/overlay", get(overlay))
+        .route("/overlay/{id}", get(get_overlay))
         .route("/all_images", get(all_images))
         .route("/user_images", get(user_images))
-        .nest_service("/images", ServeDir::new("images"))
+        .route("/image/{id}", get(get_image))
         .layer(DefaultBodyLimit::max(8000000))
         .layer(CorsLayer::permissive().allow_headers([AUTHORIZATION, CONTENT_TYPE]))
         .with_state(state);

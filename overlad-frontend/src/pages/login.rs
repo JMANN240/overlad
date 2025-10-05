@@ -3,8 +3,10 @@ use gloo::storage::{LocalStorage, Storage};
 use overlad_api::TokenRequest;
 use web_sys::HtmlInputElement;
 use yew::prelude::*;
+use yew_nav::use_hide_nav_menu;
 use yew_router::hooks::use_navigator;
 
+use crate::hooks::use_scroll_to_top;
 use crate::{
     Route,
     components::{button::{Button, ButtonType}, token_provider::{TokenAction, TokenContext}},
@@ -12,6 +14,9 @@ use crate::{
 
 #[function_component]
 pub fn LoginPage() -> Html {
+    use_hide_nav_menu(());
+    use_scroll_to_top();
+
     let navigator = use_navigator().unwrap();
     let token_context = use_context::<TokenContext>().expect("no token found");
 
@@ -82,16 +87,13 @@ pub fn LoginPage() -> Html {
 
                 let token_response_text = token_response.text().await.unwrap();
 
-                match token_response.status() {
-                    200 => {
+                if token_response.ok() {
                         LocalStorage::set("token", &token_response_text).unwrap();
 
                         token_context.dispatch(TokenAction::Set(token_response_text));
                         navigator.push(&Route::Root);
-                    }
-                    _ => {
-                        error_text.set(Some(token_response_text));
-                    }
+                } else {
+                    error_text.set(Some(token_response_text));
                 }
             });
         })
@@ -99,13 +101,31 @@ pub fn LoginPage() -> Html {
 
     html! {
         <main class="flex flex-col items-center p-8">
-            <form class="flex flex-col gap-2" onsubmit={handle_submit}>
+            <form class="flex flex-col gap-2 w-64" onsubmit={handle_submit}>
                 if let Some(error_text) = &(*error_text) {
                     <p class="text-red-500">{error_text}</p>
                 }
-                <input ref={username_input_node_ref} class="bg-transparent text-gray-900 outline-blue-500 autofill:bg-blue-200 autofill:filter-none outline-offset-1 focus:outline-1 border p-1 rounded-sm" value={(*username).clone()} onchange={handle_username_change} type="text" name="username" placeholder="Username" required=true />
-                <input ref={password_input_node_ref} class="bg-transparent text-gray-900 outline-blue-500 autofill:bg-blue-200 autofill:filter-none outline-offset-1 focus:outline-1 border p-1 rounded-sm" value={(*password).clone()} onchange={handle_password_change} type="password" name="password" placeholder="Password" required=true />
-                <button type="submit" class="outline-offset-1 focus:outline-1 bg-blue-500 border border-blue-500 text-gray-100 p-1 rounded-sm">{ "Login" }</button>
+                <input
+                    ref={username_input_node_ref}
+                    class="bg-transparent text-gray-900 outline-blue-500 autofill:bg-blue-200 autofill:filter-none outline-offset-1 focus:outline-1 border p-1 rounded-sm"
+                    value={(*username).clone()}
+                    onchange={handle_username_change}
+                    type="text"
+                    placeholder="Username"
+                    required=true
+                />
+                <input
+                    ref={password_input_node_ref}
+                    class="bg-transparent text-gray-900 outline-blue-500 autofill:bg-blue-200 autofill:filter-none outline-offset-1 focus:outline-1 border p-1 rounded-sm"
+                    value={(*password).clone()}
+                    onchange={handle_password_change}
+                    type="password"
+                    placeholder="Password"
+                    required=true
+                />
+                <Button r#type={ButtonType::Submit}>
+                    { "Login" }
+                </Button>
             </form>
         </main>
     }

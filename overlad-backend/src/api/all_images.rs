@@ -1,22 +1,20 @@
 use axum::{Json, extract::State, http::StatusCode};
-use serde::Serialize;
+use overlad_api::Image;
 
-use crate::{
-    AppState,
-    db::image::Image,
-};
-
-#[derive(Serialize)]
-pub struct AllImagesResponse {
-    ids: Vec<String>,
-}
+use crate::{AppState, db::image::DbImage, util::internal_server_error};
 
 pub async fn all_images(
     State(state): State<AppState>,
-) -> Result<Json<AllImagesResponse>, (StatusCode, &'static str)> {
-    let images = Image::get_all(&state.pool).await.unwrap();
+) -> Result<Json<Vec<Image>>, (StatusCode, String)> {
+    let db_images = DbImage::get_all(&state.pool).await.unwrap();
 
-    Ok(Json(AllImagesResponse {
-        ids: images.into_iter().map(|image| image.id).collect(),
-    }))
+    let image_futures = db_images
+        .into_iter()
+        .map(|db_image| db_image.into_image(&state.pool));
+
+    let images = futures::future::try_join_all(image_futures)
+        .await
+        .map_err(internal_server_error)?;
+
+    Ok(Json(images))
 }

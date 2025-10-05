@@ -60,11 +60,11 @@ pub fn RootPage() -> Html {
                     </h1>
                     <h2 class="text-2xl mb-8">{ "Your personal overlay companion" }</h2>
                     <h2 class="text-2xl">
-                        <Link<Route> to={Route::Register} classes="text-blue-500 underline">
+                        <Link<Route> to={Route::Register} classes="text-blue-500 hover:text-blue-600 underline duration-200">
                             { "Register" }
                         </Link<Route>>
                         { " or " }
-                        <Link<Route> to={Route::Login} classes="text-blue-500 underline">
+                        <Link<Route> to={Route::Login} classes="text-blue-500 hover:text-blue-600 underline duration-200">
                             { "log in" }
                         </Link<Route>>
                         { " to start uploading your own images." }

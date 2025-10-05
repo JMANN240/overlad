@@ -1,7 +1,8 @@
-use axum::{extract::State, http::StatusCode, Json};
+use axum::{Json, extract::State, http::StatusCode};
+use overlad_api::User;
 use serde::Deserialize;
 
-use crate::{AppState, db::user::User};
+use crate::{AppState, db::user::DbUser, util::internal_server_error};
 
 #[derive(Deserialize)]
 pub struct RegisterRequest {
@@ -13,26 +14,29 @@ pub struct RegisterRequest {
 pub async fn register(
     State(state): State<AppState>,
     Json(register_request): Json<RegisterRequest>,
-) -> Result<(StatusCode, String), (StatusCode, &'static str)> {
-    let maybe_user = User::get_by_username(&state.pool, &register_request.username)
+) -> Result<Json<User>, (StatusCode, String)> {
+    let maybe_db_user = DbUser::get_by_username(&state.pool, &register_request.username)
         .await
-        .unwrap();
+        .map_err(internal_server_error)?;
 
-    if maybe_user.is_some() {
-        return Err((StatusCode::CONFLICT, "username is taken"));
+    if maybe_db_user.is_some() {
+        return Err((StatusCode::CONFLICT, String::from("username is taken")));
     }
 
     if register_request.password != register_request.confirm_password {
-        return Err((StatusCode::BAD_REQUEST, "passwords do not match"));
+        return Err((
+            StatusCode::BAD_REQUEST,
+            String::from("passwords do not match"),
+        ));
     }
 
-    let result = User::insert(
+    let db_user = DbUser::insert(
         &state.pool,
         &register_request.username,
         &register_request.password,
     )
     .await
-    .unwrap();
+    .map_err(internal_server_error)?;
 
-    Ok((StatusCode::CREATED, result.last_insert_rowid().to_string()))
+    Ok(Json(User::from(db_user)))
 }

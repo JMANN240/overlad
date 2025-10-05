@@ -1,5 +1,5 @@
 [watch]
-ignore = [ "db/" ]
+ignore = [ "db/", "images/" ]
 
 [serve]
 port = 3000

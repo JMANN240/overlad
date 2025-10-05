@@ -22,3 +22,15 @@ pub struct TokenRequest {
 pub struct TokenResponse {
     pub token: String,
 }
+
+#[derive(Debug, Clone, Serialize, Deserialize, PartialEq)]
+pub struct User {
+    pub id: i64,
+    pub username: String,
+}
+
+#[derive(Debug, Clone, Serialize, Deserialize, PartialEq)]
+pub struct Image {
+    pub id: String,
+    pub user: User,
+}

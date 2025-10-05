@@ -6,29 +6,20 @@ use axum_extra::{
 use axum_typed_multipart::{TryFromMultipart, TypedMultipart};
 use base64::prelude::*;
 use jwt::VerifyWithKey;
-use overlad_api::TokenClaims;
-use serde::Serialize;
+use overlad_api::{Image, TokenClaims};
 
-use crate::{
-    AppState,
-    db::image::Image,
-};
+use crate::{AppState, db::image::DbImage, util::internal_server_error};
 
 #[derive(TryFromMultipart)]
 pub struct UploadMultipart {
     image: Bytes,
 }
 
-#[derive(Serialize)]
-pub struct UploadResponse {
-    id: String,
-}
-
 pub async fn upload(
     State(state): State<AppState>,
     TypedHeader(authorization): TypedHeader<Authorization<Bearer>>,
     multipart: TypedMultipart<UploadMultipart>,
-) -> Result<Json<UploadResponse>, (StatusCode, &'static str)> {
+) -> Result<Json<Image>, (StatusCode, String)> {
     let maybe_token_claims: Result<TokenClaims, jwt::Error> =
         authorization.token().verify_with_key(&state.key);
 
@@ -42,10 +33,20 @@ pub async fn upload(
 
         image.save(format!("images/{id}.png")).unwrap();
 
-        Image::insert(&state.pool, &id, token_claims.sub).await.unwrap();
+        let db_image = DbImage::insert(&state.pool, &id, token_claims.sub)
+            .await
+            .unwrap();
 
-        Ok(Json(UploadResponse { id }))
+        Ok(Json(
+            db_image
+                .into_image(&state.pool)
+                .await
+                .map_err(internal_server_error)?,
+        ))
     } else {
-        Err((StatusCode::UNAUTHORIZED, "could not verify token"))
+        Err((
+            StatusCode::UNAUTHORIZED,
+            String::from("could not verify token"),
+        ))
     }
 }

@@ -1,16 +1,19 @@
-use gloo::net::http::Request;
+use gloo::{net::http::Request, storage::{LocalStorage, Storage}};
 use overlad_api::{RegisterRequest, TokenRequest};
 use web_sys::HtmlInputElement;
 use yew::prelude::*;
+use yew_nav::use_hide_nav_menu;
 use yew_router::hooks::use_navigator;
 
 use crate::{
-    Route,
-    components::{button::{Button, ButtonType}, token_provider::{TokenAction, TokenContext}},
+    components::{button::{Button, ButtonType}, token_provider::{TokenAction, TokenContext}}, hooks::use_scroll_to_top, Route
 };
 
 #[function_component]
 pub fn RegisterPage() -> Html {
+    use_hide_nav_menu(());
+    use_scroll_to_top();
+
     let navigator = use_navigator().unwrap();
     let token_context = use_context::<TokenContext>().expect("no token found");
 
@@ -97,40 +100,33 @@ pub fn RegisterPage() -> Html {
                     .await
                     .unwrap();
 
-                let register_response_status = register_response.status();
+                if register_response.ok() {
+                    let token_request = TokenRequest {
+                        username: (*username).clone(),
+                        password: (*password).clone(),
+                    };
 
-                match register_response_status {
-                    201 => {
-                        let token_request = TokenRequest {
-                            username: (*username).clone(),
-                            password: (*password).clone(),
-                        };
-    
-                        let token_response = Request::post("/api/token")
-                            .header("Content-Type", "application/json")
-                            .body(serde_json::to_string(&token_request).unwrap())
-                            .unwrap()
-                            .send()
-                            .await
-                            .unwrap();
-    
-                        let token_response_status = token_response.status();
-                        let token_response_text = token_response.text().await.unwrap();
-    
-                        match token_response_status {
-                            200 => {
-                                token_context.dispatch(TokenAction::Set(token_response_text));
-                                navigator.push(&Route::Root);
-                            },
-                            _ => {
-                                error_text.set(Some(token_response_text));
-                            }
-                        }
-                    },
-                    _ => {
-                        let register_response_text = register_response.text().await.unwrap();
-                        error_text.set(Some(register_response_text));
+                    let token_response = Request::post("/api/token")
+                        .header("Content-Type", "application/json")
+                        .body(serde_json::to_string(&token_request).unwrap())
+                        .unwrap()
+                        .send()
+                        .await
+                        .unwrap();
+
+                    let token_response_text = token_response.text().await.unwrap();
+
+                    if token_response.ok() {
+                        LocalStorage::set("token", &token_response_text).unwrap();
+
+                        token_context.dispatch(TokenAction::Set(token_response_text));
+                        navigator.push(&Route::Root);
+                    } else {
+                        error_text.set(Some(token_response_text));
                     }
+                } else {
+                    let register_response_text = register_response.text().await.unwrap();
+                    error_text.set(Some(register_response_text));
                 }
             });
         })
@@ -138,17 +134,41 @@ pub fn RegisterPage() -> Html {
 
     html! {
         <main class="flex flex-col items-center p-8">
-            <div class="border p-4">
-                <form class="flex flex-col gap-2" onsubmit={handle_submit}>
-                    if let Some(error_text) = &(*error_text) {
-                        <p class="text-red-500">{error_text}</p>
-                    }
-                    <input ref={username_input_node_ref} class="outline-offset-1 focus:outline-1 border p-1" value={(*username).clone()} onchange={handle_username_change} type="text" name="username" placeholder="Username" required=true />
-                    <input ref={password_input_node_ref} class="outline-offset-1 focus:outline-1 border p-1" value={(*password).clone()} onchange={handle_password_change} type="password" name="password" placeholder="Password" required=true />
-                    <input ref={confirm_password_input_node_ref} class="outline-offset-1 focus:outline-1 border p-1" value={(*confirm_password).clone()} onchange={handle_confirm_password_change} type="password" name="confirm-password" placeholder="Confirm Password" required=true />
-                    <Button r#type={ButtonType::Submit}>{ "Register" }</Button>
-                </form>
-            </div>
+            <form class="flex flex-col gap-2 w-64" onsubmit={handle_submit}>
+                if let Some(error_text) = &(*error_text) {
+                    <p class="text-red-500">{error_text}</p>
+                }
+                <input
+                    ref={username_input_node_ref}
+                    class="bg-transparent text-gray-900 outline-blue-500 autofill:bg-blue-200 autofill:filter-none outline-offset-1 focus:outline-1 border p-1 rounded-sm"
+                    value={(*username).clone()}
+                    onchange={handle_username_change}
+                    type="text"
+                    placeholder="Username"
+                    required=true
+                />
+                <input
+                    ref={password_input_node_ref}
+                    class="bg-transparent text-gray-900 outline-blue-500 autofill:bg-blue-200 autofill:filter-none outline-offset-1 focus:outline-1 border p-1 rounded-sm"
+                    value={(*password).clone()}
+                    onchange={handle_password_change}
+                    type="password"
+                    placeholder="Password"
+                    required=true
+                />
+                <input
+                    ref={confirm_password_input_node_ref}
+                    class="bg-transparent text-gray-900 outline-blue-500 autofill:bg-blue-200 autofill:filter-none outline-offset-1 focus:outline-1 border p-1 rounded-sm"
+                    value={(*confirm_password).clone()}
+                    onchange={handle_confirm_password_change}
+                    type="password"
+                    placeholder="Confirm Password"
+                    required=true
+                />
+                <Button r#type={ButtonType::Submit}>
+                    { "Register" }
+                </Button>
+            </form>
         </main>
     }
 }

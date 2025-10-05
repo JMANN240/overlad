@@ -1,9 +1,69 @@
-use std::{error::Error, f64::consts::TAU};
+use std::f64::consts::TAU;
 
-use ab_glyph::{Font, GlyphId, OutlinedGlyph, PxScale, Rect, ScaleFont, point};
-use axum::http::StatusCode;
-use image::Pixel;
-use imageproc::{definitions::Clamp, drawing::Canvas, pixelops::weighted_sum};
+use ab_glyph::{point, Font, GlyphId, OutlinedGlyph, PxScale, Rect, ScaleFont};
+use current_previous::CurrentPrevious;
+use image::{Pixel, Rgba, RgbaImage};
+use imageproc::{definitions::Clamp, drawing::{text_size, Canvas}, pixelops::weighted_sum};
+
+pub fn overlay(mut image: RgbaImage, text: String, scale: f64, thickness: f64, font: impl Font) -> RgbaImage {
+    let image_min = image.width().min(image.height());
+    let margin = image_min as f64 * 0.05;
+
+    let words = text.split(" ").collect::<Vec<&str>>();
+    let font_scale = scale as f32 * image_min as f32 * 0.1;
+
+    let max_width = image.width() as f64 * 0.75 - 2.0 * margin;
+
+    let thickness = thickness * image_min as f64 * 0.001;
+    let mut line_words = CurrentPrevious::new(Vec::new());
+    let mut y_offset = 0;
+    for word in words {
+        let mut new_line_words = line_words.current().clone();
+        new_line_words.push(word);
+
+        line_words.update(new_line_words);
+
+        let current_line = line_words.current().join(" ");
+        let current_measurement = text_size(font_scale, &font, &current_line);
+
+        if let Some(previous_line_words) = line_words.previous() {
+            let previous_line = previous_line_words.join(" ");
+
+            if (current_measurement.0 as f64) > max_width
+            {
+                draw_text_outline_mut(
+                    &mut image,
+                    Rgba([255, 255, 255, 255]),
+                    Rgba([0, 0, 0, 255]),
+                    thickness,
+                    margin as i32,
+                    margin as i32 + y_offset,
+                    font_scale,
+                    &font,
+                    &previous_line,
+                );
+
+                line_words.update(vec![line_words.current().last().unwrap()]);
+                y_offset += font_scale as i32;
+            }
+        }
+    }
+
+    let current_line = line_words.current().join(" ");
+    draw_text_outline_mut(
+        &mut image,
+        Rgba([255, 255, 255, 255]),
+        Rgba([0, 0, 0, 255]),
+        thickness,
+        margin as i32,
+        margin as i32 + y_offset,
+        font_scale,
+        &font,
+        &current_line,
+    );
+
+    image
+}
 
 pub fn draw_text_mut<C>(
     canvas: &mut C,
@@ -103,12 +163,4 @@ fn layout_glyphs(
     }
 
     (w as u32, h as u32)
-}
-
-pub fn internal_server_error(error: impl Error) -> (StatusCode, String) {
-    (StatusCode::INTERNAL_SERVER_ERROR, format!("{error}"))
-}
-
-pub fn to_row_not_found<T>(maybe: Option<T>) -> sqlx::Result<T> {
-    maybe.ok_or(sqlx::Error::RowNotFound)
 }

@@ -1,4 +1,5 @@
 pub mod all_images;
+pub mod image;
 pub mod overlay;
 pub mod register;
 pub mod token;

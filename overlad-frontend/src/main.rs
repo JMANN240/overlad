@@ -5,15 +5,18 @@ use yew_router::prelude::*;
 use crate::components::nav::NavBar;
 use crate::components::token_provider::TokenProvider;
 use crate::pages::image::ImagePage;
+use crate::pages::images::ImagesPage;
 use crate::pages::login::LoginPage;
 use crate::pages::logout::LogoutPage;
 use crate::pages::register::RegisterPage;
 use crate::pages::root::RootPage;
 use crate::pages::upload::UploadPage;
+use crate::pages::user_images::UserImagesPage;
 
 pub mod components;
 pub mod hooks;
 pub mod pages;
+pub mod util;
 
 #[derive(Routable, PartialEq, Eq, Clone, Debug)]
 pub enum Route {
@@ -22,15 +25,17 @@ pub enum Route {
     #[at("/images")]
     Images,
     #[at("/images/:id")]
-    Image { id: i64 },
+    Image { id: String },
+    #[at("/user/:id/images")]
+    UserImages { id: i64 },
+    #[at("/upload")]
+    Upload,
     #[at("/register")]
     Register,
     #[at("/login")]
     Login,
     #[at("/logout")]
     Logout,
-    #[at("/upload")]
-    Upload,
 }
 
 fn switch(routes: Route) -> Html {
@@ -39,10 +44,16 @@ fn switch(routes: Route) -> Html {
             html! { <RootPage /> }
         }
         Route::Images => {
-            html! { <RootPage /> }
+            html! { <ImagesPage /> }
         }
         Route::Image { id } => {
             html! { <ImagePage id={id} /> }
+        }
+        Route::UserImages { id } => {
+            html! { <UserImagesPage id={id} /> }
+        }
+        Route::Upload => {
+            html! { <UploadPage /> }
         }
         Route::Register => {
             html! { <RegisterPage /> }
@@ -52,9 +63,6 @@ fn switch(routes: Route) -> Html {
         }
         Route::Logout => {
             html! { <LogoutPage /> }
-        }
-        Route::Upload => {
-            html! { <UploadPage /> }
         }
     }
 }

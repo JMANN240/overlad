@@ -4,13 +4,17 @@ version = "0.1.0"
 edition = "2024"
 
 [dependencies]
+ab_glyph = { workspace = true }
+base64 = "0.22.1"
 gloo = "0.11.0"
+image = { workspace = true }
 overlad-api = { path = "../overlad-api" }
+overlad-lib = { path = "../overlad-lib" }
 serde = { workspace = true }
 serde_json = { workspace = true }
 serde_plain = "1.0.2"
 wasm-bindgen-futures = "0.4.51"
-web-sys = { version = "0.3.78", features = ["Navigator", "Clipboard"] }
+web-sys = { version = "0.3.78", features = ["Clipboard", "Navigator", "HtmlFormElement", "Url"] }
 yew = { version = "0.21.0", features = ["csr"] }
 yew-nav = "0.1.0"
 yew-router = "0.18.0"

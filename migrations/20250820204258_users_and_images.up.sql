@@ -1,8 +1,7 @@
 CREATE TABLE users (
 	id INTEGER PRIMARY KEY NOT NULL,
 	username TEXT UNIQUE NOT NULL,
-	passhash TEXT NOT NULL,
-	salt TEXT NOT NULL
+	passhash TEXT NOT NULL
 );
 
 CREATE TABLE images (

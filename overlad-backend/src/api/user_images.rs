@@ -1,16 +1,8 @@
-use axum::{Json, extract::State, http::StatusCode};
-use axum_extra::{
-    TypedHeader,
-    headers::{Authorization, authorization::Bearer},
-};
-use jwt::VerifyWithKey;
-use overlad_api::TokenClaims;
+use axum::{extract::{Path, State}, http::StatusCode, Json};
+use overlad_api::Image;
 use serde::Serialize;
 
-use crate::{
-    AppState,
-    db::image::Image,
-};
+use crate::{db::image::DbImage, util::internal_server_error, AppState};
 
 #[derive(Serialize)]
 pub struct UserImagesResponse {
@@ -19,18 +11,19 @@ pub struct UserImagesResponse {
 
 pub async fn user_images(
     State(state): State<AppState>,
-    TypedHeader(authorization): TypedHeader<Authorization<Bearer>>,
-) -> Result<Json<UserImagesResponse>, (StatusCode, &'static str)> {
-    let maybe_token_claims: Result<TokenClaims, jwt::Error> =
-        authorization.token().verify_with_key(&state.key);
+    Path(user_id): Path<i64>,
+) -> Result<Json<Vec<Image>>, (StatusCode, String)> {
+    let db_images = DbImage::get_by_user_id(&state.pool, user_id)
+        .await
+        .map_err(internal_server_error)?;
 
-    if let Ok(token_claims) = maybe_token_claims {
-        let images = Image::get_by_user_id(&state.pool, token_claims.sub).await.unwrap();
+    let image_futures = db_images
+        .into_iter()
+        .map(|db_image| db_image.into_image(&state.pool));
 
-        Ok(Json(UserImagesResponse {
-            ids: images.into_iter().map(|image| image.id).collect(),
-        }))
-    } else {
-        Err((StatusCode::UNAUTHORIZED, "could not verify token"))
-    }
+    let images = futures::future::try_join_all(image_futures)
+        .await
+        .map_err(internal_server_error)?;
+
+    Ok(Json(images))
 }
