@@ -16,9 +16,15 @@ impl DbImage {
         user_id: i64,
         extension: &str,
     ) -> sqlx::Result<DbImage> {
-        query_as!(Self, "INSERT INTO images VALUES (?, ?, ?) RETURNING *", id, user_id, extension)
-            .fetch_one(pool)
-            .await
+        query_as!(
+            Self,
+            "INSERT INTO images VALUES (?, ?, ?) RETURNING *",
+            id,
+            user_id,
+            extension
+        )
+        .fetch_one(pool)
+        .await
     }
 
     pub async fn get_all(pool: &SqlitePool) -> sqlx::Result<Vec<Self>> {

@@ -1,12 +1,19 @@
 use gloo::{net::http::Request, utils::window};
-use image::{imageops::FilterType, RgbaImage};
+use image::{RgbaImage, imageops::FilterType};
 use wasm_bindgen_futures::JsFuture;
 use web_sys::{HtmlInputElement, wasm_bindgen::JsCast};
 use yew::prelude::*;
 use yew_nav::use_hide_nav_menu;
 use yew_router::prelude::*;
 
-use crate::{components::{button::{Button, ButtonType}, client_overlay::ClientOverlay}, hooks::use_scroll_to_top, Route};
+use crate::{
+    Route,
+    components::{
+        button::{Button, ButtonType},
+        client_overlay::ClientOverlay,
+    },
+    hooks::use_scroll_to_top,
+};
 
 #[function_component]
 pub fn RootPage() -> Html {
@@ -18,24 +25,29 @@ pub fn RootPage() -> Html {
 
     let example_image_id = "enXNxBF4Du7NQ8Ug96c3NnRcA1krmdQJWr_6IHKAy8Y";
 
-    use_effect_with((example_image_id, example_image_state.clone()), |(example_image_id, example_image_state)| {
-        let example_image_id = *example_image_id;
-        let example_image_state = example_image_state.clone();
+    use_effect_with(
+        (example_image_id, example_image_state.clone()),
+        |(example_image_id, example_image_state)| {
+            let example_image_id = *example_image_id;
+            let example_image_state = example_image_state.clone();
 
-        wasm_bindgen_futures::spawn_local(async move {
-            let image_response = Request::get(&format!("/api/overlay/{example_image_id}?resize_width=512&resize_height=512"))
+            wasm_bindgen_futures::spawn_local(async move {
+                let image_response = Request::get(&format!(
+                    "/api/overlay/{example_image_id}?resize_width=512&resize_height=512"
+                ))
                 .send()
                 .await
                 .unwrap();
 
-            let image_bytes = image_response.binary().await.unwrap();
+                let image_bytes = image_response.binary().await.unwrap();
 
-            let dynamic_image = image::load_from_memory(image_bytes.as_slice()).unwrap();
-            let resized_dynamic_image = dynamic_image.resize(512, 512, FilterType::Lanczos3);
+                let dynamic_image = image::load_from_memory(image_bytes.as_slice()).unwrap();
+                let resized_dynamic_image = dynamic_image.resize(512, 512, FilterType::Lanczos3);
 
-            example_image_state.set(Some(resized_dynamic_image.into_rgba8()));
-        });
-    });
+                example_image_state.set(Some(resized_dynamic_image.into_rgba8()));
+            });
+        },
+    );
 
     let on_text_input = {
         let text_state = text_state.clone();

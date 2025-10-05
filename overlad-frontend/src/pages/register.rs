@@ -1,4 +1,7 @@
-use gloo::{net::http::Request, storage::{LocalStorage, Storage}};
+use gloo::{
+    net::http::Request,
+    storage::{LocalStorage, Storage},
+};
 use overlad_api::{RegisterRequest, TokenRequest};
 use web_sys::HtmlInputElement;
 use yew::prelude::*;
@@ -6,7 +9,12 @@ use yew_nav::use_hide_nav_menu;
 use yew_router::hooks::use_navigator;
 
 use crate::{
-    components::{button::{Button, ButtonType}, token_provider::{TokenAction, TokenContext}}, hooks::use_scroll_to_top, Route
+    Route,
+    components::{
+        button::{Button, ButtonType},
+        token_provider::{TokenAction, TokenContext},
+    },
+    hooks::use_scroll_to_top,
 };
 
 #[function_component]

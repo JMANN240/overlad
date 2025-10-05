@@ -12,11 +12,7 @@ pub struct DbUser {
 }
 
 impl DbUser {
-    pub async fn insert(
-        pool: &SqlitePool,
-        username: &str,
-        password: &str,
-    ) -> sqlx::Result<Self> {
+    pub async fn insert(pool: &SqlitePool, username: &str, password: &str) -> sqlx::Result<Self> {
         let salt = SaltString::generate(&mut OsRng);
 
         let passhash = Argon2::default()

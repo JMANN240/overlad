@@ -6,12 +6,13 @@ use yew_nav::use_hide_nav_menu;
 use yew_router::hooks::use_navigator;
 
 use crate::{
+    Route,
     components::{
         button::{Button, ButtonType},
         token_provider::TokenContext,
     },
     hooks::use_scroll_to_top,
-    util::WithToken, Route,
+    util::WithToken,
 };
 
 #[function_component]

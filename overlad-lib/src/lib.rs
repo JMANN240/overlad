@@ -1,11 +1,23 @@
 use std::f64::consts::TAU;
 
-use ab_glyph::{point, Font, GlyphId, OutlinedGlyph, PxScale, Rect, ScaleFont};
+use ab_glyph::{Font, GlyphId, OutlinedGlyph, PxScale, Rect, ScaleFont, point};
 use current_previous::CurrentPrevious;
 use image::{Pixel, Rgba, RgbaImage};
-use imageproc::{definitions::Clamp, drawing::{text_size, Canvas}, pixelops::weighted_sum};
+use imageproc::{
+    definitions::Clamp,
+    drawing::{Canvas, text_size},
+    pixelops::weighted_sum,
+};
 
-pub fn overlay(mut image: RgbaImage, text: String, text_color: Rgba<u8>, outline_color: Rgba<u8>, scale: f64, thickness: f64, font: impl Font) -> RgbaImage {
+pub fn overlay(
+    mut image: RgbaImage,
+    text: String,
+    text_color: Rgba<u8>,
+    outline_color: Rgba<u8>,
+    scale: f64,
+    thickness: f64,
+    font: impl Font,
+) -> RgbaImage {
     let image_min = image.width().min(image.height());
     let margin = image_min as f64 * 0.05;
 
@@ -29,8 +41,7 @@ pub fn overlay(mut image: RgbaImage, text: String, text_color: Rgba<u8>, outline
         if let Some(previous_line_words) = line_words.previous() {
             let previous_line = previous_line_words.join(" ");
 
-            if (current_measurement.0 as f64) > max_width
-            {
+            if (current_measurement.0 as f64) > max_width {
                 draw_text_outline_mut(
                     &mut image,
                     text_color,
@@ -115,12 +126,12 @@ pub fn draw_text_outline_mut<C>(
 {
     if thickness > 0.0 {
         let steps = 32;
-    
+
         for i in 0..steps {
             let theta = TAU * i as f64 / steps as f64;
             let x_offset = theta.cos() * thickness;
             let y_offset = theta.sin() * thickness;
-    
+
             draw_text_mut(
                 canvas,
                 outline_color,

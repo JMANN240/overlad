@@ -1,13 +1,14 @@
 use yew::prelude::*;
 use yew_nav::{NavLink, NavMenuButton, NavMenuStateContext};
-use yew_router::{components::Link, Routable};
+use yew_router::{Routable, components::Link};
 
 use crate::{Route, components::token_provider::TokenContext};
 
 #[function_component]
 pub fn NavBar() -> Html {
     let token_reducer = use_context::<TokenContext>().expect("no token context found");
-    let nav_menu_state_reducer = use_context::<NavMenuStateContext>().expect("no nav menu state context found");
+    let nav_menu_state_reducer =
+        use_context::<NavMenuStateContext>().expect("no nav menu state context found");
 
     html! {
         <nav class="flex justify-between items-center relative px-4 py-2 bg-inherit">

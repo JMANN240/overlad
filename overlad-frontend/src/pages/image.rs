@@ -6,7 +6,10 @@ use yew::prelude::*;
 use yew_nav::use_hide_nav_menu;
 
 use crate::{
-    components::{button::{Button, ButtonType}, client_overlay::ClientOverlay},
+    components::{
+        button::{Button, ButtonType},
+        client_overlay::ClientOverlay,
+    },
     hooks::use_scroll_to_top,
 };
 

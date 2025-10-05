@@ -1,18 +1,10 @@
-use std::io::Cursor;
-
-use ab_glyph::FontRef;
-use base64::{Engine, prelude::BASE64_STANDARD};
 use gloo::net::http::Request;
-use image::{imageops::FilterType, ImageFormat, RgbaImage};
 use overlad_api::Image;
-use overlad_lib::overlay;
-use wasm_bindgen_futures::JsFuture;
-use web_sys::{wasm_bindgen::JsCast, window, HtmlInputElement};
 use yew::prelude::*;
 use yew_nav::use_hide_nav_menu;
 use yew_router::prelude::*;
 
-use crate::{components::button::{Button, ButtonType}, hooks::use_scroll_to_top, Route};
+use crate::{Route, hooks::use_scroll_to_top};
 
 #[function_component]
 pub fn ImagesPage() -> Html {
@@ -28,7 +20,7 @@ pub fn ImagesPage() -> Html {
             let images_state = images_state.clone();
 
             wasm_bindgen_futures::spawn_local(async move {
-                let images_response = Request::get(&format!("/api/all_images")).send().await.unwrap();
+                let images_response = Request::get("/api/all_images").send().await.unwrap();
 
                 let images = images_response.json::<Vec<Image>>().await.unwrap();
 

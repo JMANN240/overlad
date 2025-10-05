@@ -47,19 +47,12 @@ pub fn ClientOverlay(
         (
             image.clone(),
             text.clone(),
-            text_color.clone(),
-            text_scale.clone(),
-            outline_color.clone(),
-            outline_thickness.clone(),
+            *text_color,
+            *text_scale,
+            *outline_color,
+            *outline_thickness,
         ),
-        |(
-            image,
-            text,
-            text_color,
-            text_scale,
-            outline_color,
-            outline_thickness,
-        )| {
+        |(image, text, text_color, text_scale, outline_color, outline_thickness)| {
             overlay(
                 image.clone(),
                 text.clone(),
@@ -69,7 +62,7 @@ pub fn ClientOverlay(
                 *outline_thickness,
                 font,
             )
-        }
+        },
     );
 
     let overlaid_image_base64_memo = use_memo(overlaid_image_memo, |overlaid_image_memo| {

@@ -10,16 +10,16 @@ pub struct UserImagesPageProps {
 }
 
 #[function_component]
-pub fn UserImagesPage(&UserImagesPageProps { id }: &UserImagesPageProps) -> Html {
+pub fn UserImagesPage(&UserImagesPageProps { id: _ }: &UserImagesPageProps) -> Html {
     use_hide_nav_menu(());
     use_scroll_to_top();
 
-    let navigator = use_navigator().unwrap();
-    let token_context = use_context::<TokenContext>().expect("no token context found");
+    let _navigator = use_navigator().unwrap();
+    let _token_context = use_context::<TokenContext>().expect("no token context found");
 
     html! {
         <main>
-            
+
         </main>
     }
 }

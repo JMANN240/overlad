@@ -11,7 +11,6 @@ pub enum ButtonType {
     Button,
 }
 
-
 #[derive(Properties, PartialEq)]
 pub struct ButtonProps {
     #[prop_or_default]

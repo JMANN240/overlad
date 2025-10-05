@@ -1,5 +1,4 @@
 use gloo::net::http::RequestBuilder;
-use image::Rgba;
 
 pub trait WithToken {
     fn with_token(self, token: impl AsRef<str>) -> Self;

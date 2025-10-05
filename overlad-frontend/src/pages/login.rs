@@ -9,7 +9,10 @@ use yew_router::hooks::use_navigator;
 use crate::hooks::use_scroll_to_top;
 use crate::{
     Route,
-    components::{button::{Button, ButtonType}, token_provider::{TokenAction, TokenContext}},
+    components::{
+        button::{Button, ButtonType},
+        token_provider::{TokenAction, TokenContext},
+    },
 };
 
 #[function_component]
@@ -88,10 +91,10 @@ pub fn LoginPage() -> Html {
                 let token_response_text = token_response.text().await.unwrap();
 
                 if token_response.ok() {
-                        LocalStorage::set("token", &token_response_text).unwrap();
+                    LocalStorage::set("token", &token_response_text).unwrap();
 
-                        token_context.dispatch(TokenAction::Set(token_response_text));
-                        navigator.push(&Route::Root);
+                    token_context.dispatch(TokenAction::Set(token_response_text));
+                    navigator.push(&Route::Root);
                 } else {
                     error_text.set(Some(token_response_text));
                 }

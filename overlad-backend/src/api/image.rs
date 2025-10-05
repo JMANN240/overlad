@@ -5,11 +5,7 @@ use axum::{
 };
 use overlad_api::Image;
 
-use crate::{
-    AppState,
-    db::image::DbImage,
-    util::internal_server_error,
-};
+use crate::{AppState, db::image::DbImage, util::internal_server_error};
 
 pub async fn get_image(
     State(state): State<AppState>,
@@ -22,7 +18,8 @@ pub async fn get_image(
     let db_image =
         maybe_db_image.ok_or((StatusCode::NOT_FOUND, format!("image {id} not found")))?;
 
-    let image = db_image.into_image(&state.pool)
+    let image = db_image
+        .into_image(&state.pool)
         .await
         .map_err(internal_server_error)?;
 

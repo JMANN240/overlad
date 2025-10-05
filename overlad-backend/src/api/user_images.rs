@@ -1,8 +1,12 @@
-use axum::{extract::{Path, State}, http::StatusCode, Json};
+use axum::{
+    Json,
+    extract::{Path, State},
+    http::StatusCode,
+};
 use overlad_api::Image;
 use serde::Serialize;
 
-use crate::{db::image::DbImage, util::internal_server_error, AppState};
+use crate::{AppState, db::image::DbImage, util::internal_server_error};
 
 #[derive(Serialize)]
 pub struct UserImagesResponse {
