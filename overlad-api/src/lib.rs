@@ -33,4 +33,5 @@ pub struct User {
 pub struct Image {
     pub id: String,
     pub user: User,
+    pub extension: String,
 }

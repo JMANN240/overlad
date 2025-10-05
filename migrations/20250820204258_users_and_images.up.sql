@@ -7,5 +7,6 @@ CREATE TABLE users (
 CREATE TABLE images (
 	id TEXT PRIMARY KEY NOT NULL,
 	user_id INTEGER NOT NULL,
+	extension TEXT NOT NULL,
 	FOREIGN KEY (user_id) REFERENCES users (id)
 )

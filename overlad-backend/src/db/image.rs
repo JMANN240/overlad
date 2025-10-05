@@ -6,6 +6,7 @@ use crate::{db::user::DbUser, util::to_row_not_found};
 pub struct DbImage {
     pub id: String,
     pub user_id: i64,
+    pub extension: String,
 }
 
 impl DbImage {
@@ -13,8 +14,9 @@ impl DbImage {
         pool: &SqlitePool,
         id: &str,
         user_id: i64,
+        extension: &str,
     ) -> sqlx::Result<DbImage> {
-        query_as!(Self, "INSERT INTO images VALUES (?, ?) RETURNING *", id, user_id)
+        query_as!(Self, "INSERT INTO images VALUES (?, ?, ?) RETURNING *", id, user_id, extension)
             .fetch_one(pool)
             .await
     }
@@ -55,6 +57,7 @@ impl DbImage {
         Ok(Image {
             id: self.id,
             user,
+            extension: self.extension,
         })
     }
 }

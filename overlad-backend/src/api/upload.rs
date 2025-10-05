@@ -30,10 +30,11 @@ pub async fn upload(
         rand::fill(&mut id_bytes);
 
         let id = BASE64_URL_SAFE_NO_PAD.encode(id_bytes);
+        let extension = "webp";
 
-        image.save(format!("images/{id}.png")).unwrap();
+        image.save(format!("images/{id}.{extension}")).unwrap();
 
-        let db_image = DbImage::insert(&state.pool, &id, token_claims.sub)
+        let db_image = DbImage::insert(&state.pool, &id, token_claims.sub, extension)
             .await
             .unwrap();
 

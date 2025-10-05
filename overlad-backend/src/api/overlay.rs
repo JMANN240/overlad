@@ -25,7 +25,7 @@ pub async fn get_overlay(
     let scale = query.scale.unwrap_or(1.0);
     let thickness = query.thickness.unwrap_or(0.0);
 
-    let dynamic_image = ImageReader::open(format!("images/{id}.png"))
+    let dynamic_image = ImageReader::open(format!("images/{id}.webp"))
         .unwrap()
         .decode()
         .unwrap();
@@ -35,10 +35,10 @@ pub async fn get_overlay(
     let overlaid_image = overlay(image, text, scale, thickness, font);
 
     let mut buf = Cursor::new(Vec::new());
-    overlaid_image.write_to(&mut buf, ImageFormat::Png).unwrap();
+    overlaid_image.write_to(&mut buf, ImageFormat::WebP).unwrap();
 
     let mut headers = HeaderMap::new();
-    headers.insert(CONTENT_TYPE, "image/png".parse().unwrap());
+    headers.insert(CONTENT_TYPE, "image/webp".parse().unwrap());
 
     (headers, buf.into_inner())
 }
