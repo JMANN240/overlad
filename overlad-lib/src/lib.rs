@@ -5,7 +5,7 @@ use current_previous::CurrentPrevious;
 use image::{Pixel, Rgba, RgbaImage};
 use imageproc::{definitions::Clamp, drawing::{text_size, Canvas}, pixelops::weighted_sum};
 
-pub fn overlay(mut image: RgbaImage, text: String, scale: f64, thickness: f64, font: impl Font) -> RgbaImage {
+pub fn overlay(mut image: RgbaImage, text: String, text_color: Rgba<u8>, outline_color: Rgba<u8>, scale: f64, thickness: f64, font: impl Font) -> RgbaImage {
     let image_min = image.width().min(image.height());
     let margin = image_min as f64 * 0.05;
 
@@ -33,8 +33,8 @@ pub fn overlay(mut image: RgbaImage, text: String, scale: f64, thickness: f64, f
             {
                 draw_text_outline_mut(
                     &mut image,
-                    Rgba([255, 255, 255, 255]),
-                    Rgba([0, 0, 0, 255]),
+                    text_color,
+                    outline_color,
                     thickness,
                     margin as i32,
                     margin as i32 + y_offset,
@@ -52,8 +52,8 @@ pub fn overlay(mut image: RgbaImage, text: String, scale: f64, thickness: f64, f
     let current_line = line_words.current().join(" ");
     draw_text_outline_mut(
         &mut image,
-        Rgba([255, 255, 255, 255]),
-        Rgba([0, 0, 0, 255]),
+        text_color,
+        outline_color,
         thickness,
         margin as i32,
         margin as i32 + y_offset,

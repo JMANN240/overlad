@@ -7,6 +7,7 @@ edition = "2024"
 ab_glyph = { workspace = true }
 base64 = "0.22.1"
 gloo = "0.11.0"
+hex = { workspace = true }
 image = { workspace = true }
 overlad-api = { path = "../overlad-api" }
 overlad-lib = { path = "../overlad-lib" }

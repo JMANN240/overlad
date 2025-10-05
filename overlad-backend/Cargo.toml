@@ -13,9 +13,9 @@ base64 = "0.22.1"
 clap = { version = "4.5.45", features = ["derive"] }
 dotenvy = "0.15.7"
 futures = "0.3.31"
+hex = { workspace = true }
 hmac = "0.12.1"
 image = { workspace = true }
-imageproc = { workspace = true }
 jwt = "0.16.0"
 overlad-api = { path = "../overlad-api" }
 overlad-lib = { path = "../overlad-lib" }
