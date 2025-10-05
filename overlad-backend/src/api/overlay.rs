@@ -6,7 +6,7 @@ use axum::{
     http::{HeaderMap, StatusCode, header::CONTENT_TYPE},
     response::IntoResponse,
 };
-use image::{ImageFormat, ImageReader, Rgba};
+use image::{imageops::FilterType, ImageFormat, ImageReader, Rgba};
 use overlad_lib::overlay;
 use serde::Deserialize;
 
@@ -19,6 +19,8 @@ pub struct OverlayQuery {
     text_scale: Option<f64>,
     outline_color: Option<String>,
     outline_thickness: Option<f64>,
+    resize_width: Option<u32>,
+    resize_height: Option<u32>,
 }
 
 pub async fn get_overlay(
@@ -51,7 +53,14 @@ pub async fn get_overlay(
         .unwrap()
         .decode()
         .unwrap();
-    let image = dynamic_image.into_rgba8();
+
+    let resized_image = if let Some(resize_width) = query.resize_width && let Some(resize_height) = query.resize_height {
+        dynamic_image.resize(resize_width, resize_height, FilterType::Lanczos3)
+    } else {
+        dynamic_image.clone()
+    };
+
+    let image = resized_image.into_rgba8();
     let font = FontRef::try_from_slice(include_bytes!("../../../roboto.ttf")).unwrap();
 
     let overlaid_image = overlay(image, text, text_color, outline_color, text_scale, outline_thickness, font);

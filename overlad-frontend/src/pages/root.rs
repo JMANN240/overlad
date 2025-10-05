@@ -1,38 +1,65 @@
-use gloo::utils::window;
+use gloo::{net::http::Request, utils::window};
+use image::{imageops::FilterType, RgbaImage};
 use wasm_bindgen_futures::JsFuture;
 use web_sys::{HtmlInputElement, wasm_bindgen::JsCast};
 use yew::prelude::*;
 use yew_nav::use_hide_nav_menu;
 use yew_router::prelude::*;
 
-use crate::{Route, hooks::use_scroll_to_top};
+use crate::{components::{button::{Button, ButtonType}, client_overlay::ClientOverlay}, hooks::use_scroll_to_top, Route};
 
 #[function_component]
 pub fn RootPage() -> Html {
     use_hide_nav_menu(());
     use_scroll_to_top();
 
+    let example_image_state = use_state(Option::<RgbaImage>::default);
     let text_state = use_state(|| String::from("Me When"));
 
-    let oninput = {
+    let example_image_id = "enXNxBF4Du7NQ8Ug96c3NnRcA1krmdQJWr_6IHKAy8Y";
+
+    use_effect_with((example_image_id, example_image_state.clone()), |(example_image_id, example_image_state)| {
+        let example_image_id = *example_image_id;
+        let example_image_state = example_image_state.clone();
+
+        wasm_bindgen_futures::spawn_local(async move {
+            let image_response = Request::get(&format!("/api/overlay/{example_image_id}?resize_width=512&resize_height=512"))
+                .send()
+                .await
+                .unwrap();
+
+            let image_bytes = image_response.binary().await.unwrap();
+
+            let dynamic_image = image::load_from_memory(image_bytes.as_slice()).unwrap();
+            let resized_dynamic_image = dynamic_image.resize(512, 512, FilterType::Lanczos3);
+
+            example_image_state.set(Some(resized_dynamic_image.into_rgba8()));
+        });
+    });
+
+    let on_text_input = {
         let text_state = text_state.clone();
 
         Callback::from(move |event: InputEvent| {
-            let maybe_target = event.target();
-
-            if let Some(input_element) =
-                maybe_target.and_then(|target| target.dyn_into::<HtmlInputElement>().ok())
+            if let Some(input_element) = event
+                .target()
+                .and_then(|target| target.dyn_into::<HtmlInputElement>().ok())
             {
                 text_state.set(input_element.value());
             }
         })
     };
 
-    let example_image_id = "L5DL15OVCRnye-VryMr19KBVxkC3e9_r4WLx20Or-gg";
+    let text_scale = 2.0;
+    let outline_thickness = 1.0;
 
     let link = format!(
-        "http://localhost:3000/api/overlay?id={}&text={}&thickness=1&scale=2",
-        example_image_id, &*text_state
+        "{}/api/overlay/{}?text={}&text_scale={}&outline_thickness={}",
+        window().location().origin().unwrap(),
+        example_image_id,
+        &*text_state,
+        text_scale,
+        outline_thickness,
     );
 
     let copy_link = {
@@ -50,8 +77,8 @@ pub fn RootPage() -> Html {
     };
 
     html! {
-        <main class="flex flex-col p-8 gap-4 divide-y">
-            <section class="grid sm:grid-cols-2 gap-4 min-h-128">
+        <main class="flex flex-col px-4 sm:px-8 divide-y">
+            <section class="grid sm:grid-cols-2 gap-4 min-h-128 py-8">
                 <div>
                     <h1 class="flex text-6xl mb-2">
                         <span class="border-l border-t px-4 py-2 font-bold">
@@ -74,33 +101,43 @@ pub fn RootPage() -> Html {
                     // <ImageWall image_ids={image_ids} image_class="h-32 border" />
                 </div>
             </section>
-            <section class="grid sm:grid-cols-2 gap-4 min-h-96">
+            <section class="grid sm:grid-cols-2 gap-4 py-8">
                 <div>
                     <h1 class="text-6xl">{ "Step 1" }</h1>
                     <h2 class="text-2xl">{ "Upload or Select and Image" }</h2>
                 </div>
                 <div class="flex justify-center items-center">
-                    <img class="max-h-64 border" src={format!("/api/overlay?id={}&text=&thickness=0&scale=1", example_image_id)} />
+                    if let Some(example_image) = &*example_image_state {
+                        <ClientOverlay image={example_image.clone()} classes="max-h-64 border" />
+                    }
                 </div>
             </section>
-            <section class="grid sm:grid-cols-2 gap-4 min-h-96">
+            <section class="grid sm:grid-cols-2 gap-4 py-8">
                 <div>
                     <h1 class="text-6xl">{ "Step 2" }</h1>
                     <h2 class="text-2xl">{ "Customize the Overlay" }</h2>
                 </div>
-                <div class="flex flex-col justify-center items-center gap-2">
-                    <img class="max-h-64 border" src={link.clone()} />
-                    <input class="outline-offset-1 focus:outline-1 border p-1 w-64" type="text" value={(*text_state).clone()} oninput={oninput} />
+                <div class="flex justify-center items-center">
+                    <div class="flex flex-col gap-2">
+                        if let Some(example_image) = &*example_image_state {
+                            <ClientOverlay image={example_image.clone()} text={(*text_state).clone()} text_scale={text_scale} outline_thickness={outline_thickness} classes="max-h-64 border" />
+                        }
+                        <input class="bg-transparent text-gray-900 outline-blue-500 outline-offset-1 focus:outline-1 border p-1 rounded-sm" type="text" value={(*text_state).clone()} oninput={on_text_input} />
+                    </div>
                 </div>
             </section>
-            <section class="grid sm:grid-cols-2 gap-4 min-h-96">
+            <section class="grid sm:grid-cols-2 gap-4 py-8">
                 <div>
                     <h1 class="text-6xl">{ "Step 3" }</h1>
                     <h2 class="text-2xl">{ "Copy Link and Use" }</h2>
                 </div>
-                <div class="flex flex-col justify-center items-center gap-2">
-                    <img class="max-h-64 border" src={link} />
-                    <button type="button" onclick={copy_link}>{ "Copy" }</button>
+                <div class="flex justify-center items-center">
+                    <div class="flex flex-col gap-2">
+                        if let Some(example_image) = &*example_image_state {
+                            <ClientOverlay image={example_image.clone()} text={(*text_state).clone()} text_scale={text_scale} outline_thickness={outline_thickness} classes="max-h-64 border" />
+                        }
+                        <Button r#type={ButtonType::Button} onclick={copy_link}>{ "Copy" }</Button>
+                    </div>
                 </div>
             </section>
         </main>

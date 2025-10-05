@@ -149,7 +149,7 @@ pub fn RegisterPage() -> Html {
                 />
                 <input
                     ref={password_input_node_ref}
-                    class="bg-transparent text-gray-900 outline-blue-500 autofill:bg-blue-200 autofill:filter-none outline-offset-1 focus:outline-1 border p-1 rounded-sm"
+                    class="bg-transparent text-gray-900 outline-blue-500 outline-offset-1 focus:outline-1 border p-1 rounded-sm"
                     value={(*password).clone()}
                     onchange={handle_password_change}
                     type="password"
@@ -158,7 +158,7 @@ pub fn RegisterPage() -> Html {
                 />
                 <input
                     ref={confirm_password_input_node_ref}
-                    class="bg-transparent text-gray-900 outline-blue-500 autofill:bg-blue-200 autofill:filter-none outline-offset-1 focus:outline-1 border p-1 rounded-sm"
+                    class="bg-transparent text-gray-900 outline-blue-500 outline-offset-1 focus:outline-1 border p-1 rounded-sm"
                     value={(*confirm_password).clone()}
                     onchange={handle_confirm_password_change}
                     type="password"

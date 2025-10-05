@@ -1,17 +1,12 @@
-use std::io::Cursor;
-
-use ab_glyph::FontRef;
-use base64::{Engine, prelude::BASE64_STANDARD};
 use gloo::net::http::Request;
-use image::{ImageFormat, Rgba, RgbaImage, imageops::FilterType};
-use overlad_lib::overlay;
+use image::{Rgba, RgbaImage, imageops::FilterType};
 use wasm_bindgen_futures::JsFuture;
 use web_sys::{HtmlInputElement, wasm_bindgen::JsCast, window};
 use yew::prelude::*;
 use yew_nav::use_hide_nav_menu;
 
 use crate::{
-    components::button::{Button, ButtonType},
+    components::{button::{Button, ButtonType}, client_overlay::ClientOverlay},
     hooks::use_scroll_to_top,
 };
 
@@ -55,37 +50,6 @@ pub fn ImagePage(ImagePageProps { id }: &ImagePageProps) -> Html {
                 image_state.set(Some(resized_dynamic_image.into_rgba8()));
             });
         }
-    });
-
-    let font = FontRef::try_from_slice(include_bytes!("../../../roboto.ttf")).unwrap();
-
-    let overlaid_image_memo = use_memo(
-        (image_state.clone(), text_state.clone(), text_color_state.clone(), text_scale_state.clone(), outline_color_state.clone(), outline_thickness_state.clone()),
-        |(image_state, text_state, text_color_state, text_scale_state, outline_color_state, outline_thickness_state)| {
-            image_state.as_ref().map(|image| {
-                overlay(
-                    image.clone(),
-                    (**text_state).clone(),
-                    **text_color_state,
-                    **outline_color_state,
-                    **text_scale_state,
-                    **outline_thickness_state,
-                    font,
-                )
-            })
-        },
-    );
-
-    let overlaid_image_base64_memo = use_memo(overlaid_image_memo, |overlaid_image_memo| {
-        (**overlaid_image_memo).as_ref().map(|overlaid_image| {
-            let mut buffer = vec![];
-
-            overlaid_image
-                .write_to(&mut Cursor::new(&mut buffer), ImageFormat::WebP)
-                .unwrap();
-
-            BASE64_STANDARD.encode(buffer)
-        })
     });
 
     let on_text_input = {
@@ -190,8 +154,16 @@ pub fn ImagePage(ImagePageProps { id }: &ImagePageProps) -> Html {
     html! {
         <main class="flex flex-col items-center p-4 sm:p-8">
             <div class="max-w-full w-128 flex flex-col gap-2">
-                if let Some(overlaid_image_base64) = &*overlaid_image_base64_memo {
-                    <img src={format!("data:image/webp;base64,{overlaid_image_base64}")} class="border max-w-128 max-h-128" />
+                if let Some(image) = &*image_state {
+                    <ClientOverlay
+                        image={image.clone()}
+                        text={(*text_state).clone()}
+                        text_color={*text_color_state}
+                        text_scale={*text_scale_state}
+                        outline_color={*outline_color_state}
+                        outline_thickness={*outline_thickness_state}
+                        classes="border max-w-128 max-h-128"
+                    />
                 }
                 <input value={(*text_state).clone()} oninput={on_text_input} class="bg-transparent text-gray-900 outline-blue-500 autofill:bg-blue-200 autofill:filter-none outline-offset-1 focus:outline-1 border p-1 rounded-sm" />
                 <div class="flex items-center">
