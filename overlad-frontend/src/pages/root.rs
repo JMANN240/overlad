@@ -42,9 +42,8 @@ pub fn RootPage() -> Html {
                 let image_bytes = image_response.binary().await.unwrap();
 
                 let dynamic_image = image::load_from_memory(image_bytes.as_slice()).unwrap();
-                let resized_dynamic_image = dynamic_image.resize(512, 512, FilterType::Lanczos3);
 
-                example_image_state.set(Some(resized_dynamic_image.into_rgba8()));
+                example_image_state.set(Some(dynamic_image.into_rgba8()));
             });
         },
     );
@@ -90,8 +89,8 @@ pub fn RootPage() -> Html {
 
     html! {
         <main class="flex flex-col px-4 sm:px-8 divide-y">
-            <section class="grid sm:grid-cols-2 gap-4 min-h-128 py-8">
-                <div>
+            <section class="min-h-128 py-8 flex justify-center">
+                <div class="max-w-6xl w-full" >
                     <h1 class="flex text-6xl mb-2">
                         <span class="border-l border-t px-4 py-2 font-bold">
                             { "OverLad" }
@@ -109,46 +108,49 @@ pub fn RootPage() -> Html {
                         { " to start uploading your own images." }
                     </h2>
                 </div>
-                <div class="flex flex-wrap gap-2 content-start">
-                    // <ImageWall image_ids={image_ids} image_class="h-32 border" />
-                </div>
             </section>
-            <section class="grid sm:grid-cols-2 gap-4 py-8">
-                <div>
-                    <h1 class="text-6xl">{ "Step 1" }</h1>
-                    <h2 class="text-2xl">{ "Upload or Select and Image" }</h2>
-                </div>
-                <div class="flex justify-center items-center">
-                    if let Some(example_image) = &*example_image_state {
-                        <ClientOverlay image={example_image.clone()} classes="max-h-64 border" />
-                    }
-                </div>
-            </section>
-            <section class="grid sm:grid-cols-2 gap-4 py-8">
-                <div>
-                    <h1 class="text-6xl">{ "Step 2" }</h1>
-                    <h2 class="text-2xl">{ "Customize the Overlay" }</h2>
-                </div>
-                <div class="flex justify-center items-center">
-                    <div class="flex flex-col gap-2">
+            <section class="py-8 flex justify-center">
+                <div class="grid sm:grid-cols-2 max-w-6xl w-full gap-4" >
+                    <div>
+                        <h1 class="text-6xl">{ "Step 1" }</h1>
+                        <h2 class="text-2xl">{ "Upload or Select and Image" }</h2>
+                    </div>
+                    <div class="flex justify-center items-center">
                         if let Some(example_image) = &*example_image_state {
-                            <ClientOverlay image={example_image.clone()} text={(*text_state).clone()} text_scale={text_scale} outline_thickness={outline_thickness} classes="max-h-64 border" />
+                            <ClientOverlay image={example_image.clone()} classes="max-h-64 border" />
                         }
-                        <input class="bg-transparent text-gray-900 outline-blue-500 outline-offset-1 focus:outline-1 border p-1 rounded-sm" type="text" value={(*text_state).clone()} oninput={on_text_input} />
                     </div>
                 </div>
             </section>
-            <section class="grid sm:grid-cols-2 gap-4 py-8">
-                <div>
-                    <h1 class="text-6xl">{ "Step 3" }</h1>
-                    <h2 class="text-2xl">{ "Copy Link and Use" }</h2>
+            <section class="py-8 flex justify-center">
+                <div class="grid sm:grid-cols-2 max-w-6xl w-full gap-4" >
+                    <div>
+                        <h1 class="text-6xl">{ "Step 2" }</h1>
+                        <h2 class="text-2xl">{ "Customize the Overlay" }</h2>
+                    </div>
+                    <div class="flex justify-center items-center">
+                        <div class="flex flex-col gap-2">
+                            if let Some(example_image) = &*example_image_state {
+                                <ClientOverlay image={example_image.clone()} text={(*text_state).clone()} text_scale={text_scale} outline_thickness={outline_thickness} classes="max-h-64 border" />
+                            }
+                            <input class="bg-transparent text-gray-900 outline-blue-500 outline-offset-1 focus:outline-1 border p-1 rounded-sm" type="text" value={(*text_state).clone()} oninput={on_text_input} />
+                        </div>
+                    </div>
                 </div>
-                <div class="flex justify-center items-center">
-                    <div class="flex flex-col gap-2">
-                        if let Some(example_image) = &*example_image_state {
-                            <ClientOverlay image={example_image.clone()} text={(*text_state).clone()} text_scale={text_scale} outline_thickness={outline_thickness} classes="max-h-64 border" />
-                        }
-                        <Button r#type={ButtonType::Button} onclick={copy_link}>{ "Copy" }</Button>
+            </section>
+            <section class="py-8 flex justify-center">
+                <div class="grid sm:grid-cols-2 max-w-6xl w-full gap-4" >
+                    <div>
+                        <h1 class="text-6xl">{ "Step 3" }</h1>
+                        <h2 class="text-2xl">{ "Copy Link and Use" }</h2>
+                    </div>
+                    <div class="flex justify-center items-center">
+                        <div class="flex flex-col gap-2">
+                            if let Some(example_image) = &*example_image_state {
+                                <ClientOverlay image={example_image.clone()} text={(*text_state).clone()} text_scale={text_scale} outline_thickness={outline_thickness} classes="max-h-64 border" />
+                            }
+                            <Button r#type={ButtonType::Button} onclick={copy_link}>{ "Copy" }</Button>
+                        </div>
                     </div>
                 </div>
             </section>
