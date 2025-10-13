@@ -9,6 +9,7 @@ base64 = "0.22.1"
 gloo = "0.11.0"
 hex = { workspace = true }
 image = { workspace = true }
+jwt = { workspace = true }
 overlad-api = { path = "../overlad-api" }
 overlad-lib = { path = "../overlad-lib" }
 serde = { workspace = true }

@@ -15,8 +15,7 @@ use tokio::net::{TcpListener, UnixListener};
 use tower_http::cors::CorsLayer;
 
 use crate::api::{
-    all_images::all_images, image::get_image, overlay::get_overlay, register::register,
-    token::token, upload::upload, user_images::user_images,
+    all_images::all_images, image::get_image, overlay::get_overlay, register::register, token::token, upload::upload, user::get_user, user_images::user_images
 };
 
 mod api;
@@ -95,7 +94,8 @@ where
         .route("/upload", post(upload))
         .route("/overlay/{id}", get(get_overlay))
         .route("/all_images", get(all_images))
-        .route("/user_images", get(user_images))
+        .route("/user/{user_id}", get(get_user))
+        .route("/user/{user_id}/images", get(user_images))
         .route("/image/{id}", get(get_image))
         .layer(DefaultBodyLimit::max(8000000))
         .layer(CorsLayer::permissive().allow_headers([AUTHORIZATION, CONTENT_TYPE]))

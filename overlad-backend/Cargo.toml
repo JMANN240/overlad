@@ -16,7 +16,7 @@ futures = "0.3.31"
 hex = { workspace = true }
 hmac = "0.12.1"
 image = { workspace = true }
-jwt = "0.16.0"
+jwt = { workspace = true }
 overlad-api = { path = "../overlad-api" }
 overlad-lib = { path = "../overlad-lib" }
 rand = "0.9.2"

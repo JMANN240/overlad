@@ -4,14 +4,8 @@ use axum::{
     http::StatusCode,
 };
 use overlad_api::Image;
-use serde::Serialize;
 
 use crate::{AppState, db::image::DbImage, util::internal_server_error};
-
-#[derive(Serialize)]
-pub struct UserImagesResponse {
-    ids: Vec<String>,
-}
 
 pub async fn user_images(
     State(state): State<AppState>,

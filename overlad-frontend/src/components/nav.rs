@@ -1,3 +1,5 @@
+use jwt::{Header, Token, Unverified};
+use overlad_api::TokenClaims;
 use yew::prelude::*;
 use yew_nav::{NavLink, NavMenuButton, NavMenuStateContext};
 use yew_router::{Routable, components::Link};
@@ -9,6 +11,12 @@ pub fn NavBar() -> Html {
     let token_reducer = use_context::<TokenContext>().expect("no token context found");
     let nav_menu_state_reducer =
         use_context::<NavMenuStateContext>().expect("no nav menu state context found");
+
+    let maybe_user_id = token_reducer.0.as_ref().map(|token_string |{
+        let token = Token::<Header, TokenClaims, Unverified<'_>>::parse_unverified(token_string).unwrap();
+        let claims: &TokenClaims = token.claims();
+        claims.sub
+    });
 
     html! {
         <nav class="flex justify-between items-center relative px-4 py-2 bg-inherit">
@@ -23,8 +31,8 @@ pub fn NavBar() -> Html {
                 </OverLadNavLink<Route>>
             </div>
             <div class={classes!("flex", "items-center", "gap-4", "max-sm:hidden")}>
-                if token_reducer.0.is_some() {
-                    <OverLadNavLink<Route> to={Route::UserImages { id: 0 }}>
+                if let Some(user_id) = maybe_user_id {
+                    <OverLadNavLink<Route> to={Route::UserImages { id: user_id }}>
                         <h2>{ "Your Images" }</h2>
                     </OverLadNavLink<Route>>
                     <OverLadNavLink<Route> to={Route::Upload}>
@@ -50,8 +58,8 @@ pub fn NavBar() -> Html {
                     <OverLadNavLink<Route> to={Route::Images}>
                         <h2>{ "Images" }</h2>
                     </OverLadNavLink<Route>>
-                if token_reducer.0.is_some() {
-                    <OverLadNavLink<Route> to={Route::UserImages { id: 0 }}>
+                if let Some(user_id) = maybe_user_id {
+                    <OverLadNavLink<Route> to={Route::UserImages { id: user_id }}>
                         <h2>{ "Your Images" }</h2>
                     </OverLadNavLink<Route>>
                     <OverLadNavLink<Route> to={Route::Upload}>
