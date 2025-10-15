@@ -1,7 +1,7 @@
 use gloo::{net::http::Request, utils::window};
-use image::{RgbaImage, imageops::FilterType};
+use image::RgbaImage;
 use wasm_bindgen_futures::JsFuture;
-use web_sys::{HtmlInputElement, wasm_bindgen::JsCast};
+use web_sys::{js_sys::encode_uri, wasm_bindgen::JsCast, HtmlInputElement};
 use yew::prelude::*;
 use yew_nav::use_hide_nav_menu;
 use yew_router::prelude::*;
@@ -80,7 +80,8 @@ pub fn RootPage() -> Html {
             let link = link.clone();
 
             wasm_bindgen_futures::spawn_local(async move {
-                JsFuture::from(window().navigator().clipboard().write_text(&link))
+                let url_encoded_link = encode_uri(&link).as_string().unwrap();
+                JsFuture::from(window().navigator().clipboard().write_text(&url_encoded_link))
                     .await
                     .unwrap();
             });
